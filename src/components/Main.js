@@ -1,0 +1,188 @@
+import React, { Component } from 'react';
+import {FaHeart} from"react-icons/fa";
+import { IoIosCheckmarkCircle } from 'react-icons/io';
+import Identicon from 'identicon.js';
+class Main extends Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      socialNetwork: null,
+      showList: false
+    };
+    
+    this.toggleList = this.toggleList.bind(this);
+  }
+
+  toggleList() {
+    this.setState({ showList: !this.state.showList });
+  }
+  
+  manageAccount(){
+    if(this.props.isAdmin === true){
+      return(
+        <div className="fixed-top mt-5" style={{ maxWidth: '430px' }}>
+                <button className="btn btn-primary" onClick={this.toggleList}>Show List</button>
+                <ul className="list-group" style={{ display: this.state.showList ? 'block' : 'none' }}>
+                {
+                  this.props.members.map((address,key)=>{
+                    return(
+                      <div>
+                        <li className="list-group-item" key = {key}><small>{address}</small>
+                        <button className='btn btn-danger float-right'onClick={(event)=>{
+                          this.props.deleteMember(address)
+                        }}>Cancel</button></li>
+                      </div>
+                    )
+                  })
+                  
+                }
+                </ul>
+            </div>
+      )
+    }
+  }
+  setIconTick(address){
+    const members = this.props.membersAll;
+    const isMember = members.filter((value) => {
+      return value === address;
+    });
+    if (isMember.length > 0) {
+      return <IoIosCheckmarkCircle />;
+    } else {
+      return null;
+    }
+  }
+  render() {
+    return (
+      <div className="container-fluid mt-5">
+        <div className="row">
+          <main role="main" className="col-lg-12 ml-auto mr-auto" style={{ maxWidth: '500px' }}>
+          
+            <div className="content mr-auto ml-auto">
+            {
+              this.manageAccount()
+            }
+            
+              <p>&nbsp;</p>
+                <form onSubmit={(event) => {
+                  event.preventDefault()
+                  const content = this.postContent.value
+                  this.props.createPost(content)
+                }}>
+                <div className="form-group mr-sm-2">
+                  <input
+                    id="postContent"
+                    type="text"
+                    ref={(input) => { this.postContent = input }}
+                    className="form-control"
+                    placeholder="What's on your mind?"
+                    required />
+                </div>
+                <button type="submit" className="btn btn-primary btn-block">Share</button>
+              </form>
+              <p>&nbsp;</p>
+              { this.props.posts.map((post, key) => {
+                return(
+                  <div className="card mb-4" key={key} >
+                    <div className="card-header">
+                      <img
+                        alt='img'
+                        className='mr-2'
+                        width='30'
+                        height='30'
+                        src={`data:image/png;base64,${new Identicon(post.author, 30).toString()}`}
+                      />
+                      <small className="text-muted">{post.author}</small>
+                      <span style={{color:"blue"}}>
+                        {this.setIconTick(post.author)}
+                      </span>
+                      
+                    </div>
+                    <ul id="postList" className="list-group list-group-flush">
+                      <li className="list-group-item">
+                        <p>{post.content}</p>
+                      </li>
+                      <li key={key}  className="list-group-item py-2">
+                        <small className="float-left mt-1 text-muted">
+                          TIPS: {window.web3.utils.fromWei(post.tipAmount.toString(), 'Ether')} ETH
+                        </small>
+                        
+                        <button
+                          className="btn btn-link btn-sm float-right pt-0"
+                          onClick={(event) => {
+                            console.log("You vote post has id: ", post.id)
+                            this.props.votePost(post.id)                
+                          }}
+                        >   
+                          <span className='vote-icon' style={{color: this.props.isVote[post.id-1] ?  "red" : "gray"}}>
+                            <FaHeart/>
+                          </span>
+                          <span className='vote-number'>{post.vote}</span>
+                        </button>
+                        <button
+                          className="btn btn-link btn-sm float-right pt-0"
+                          name={post.id}
+                          onClick={(event) => {
+                            let tipAmount = window.web3.utils.toWei('0.1', 'Ether')
+                            console.log(event.target.name, tipAmount)
+                            this.props.tipPost(event.target.name, tipAmount)
+                          }}
+                        >
+                          TIP 0.1 ETH
+                        </button>
+                      </li>
+                    </ul>
+                  </div>
+                )
+              })}
+            </div>
+          </main>
+              <div className='position-absolute wallet' style={{right: '1rem'}}>
+                <h4 className='text-center'>My wallet</h4>
+                <ul className="navbar-nav">
+                    <li className="nav-item active">
+                        <p className=''>Token: {this.props.tokenTotal} SCN</p>
+                    </li>
+                    <li className="nav-item">
+                            
+                            <form onSubmit={(event) => {
+                            event.preventDefault()
+                            const toAddress = this.toAddress.value
+                            const valueToken = this.valueToken.value
+                            
+                            this.props.transferToken(toAddress, valueToken)
+                          }}>
+                          <p>To address: </p>
+                            <input
+                                id="toAddress"
+                                type="text"
+                                ref={(input) => { this.toAddress = input }}
+                                className="form-control"
+                                placeholder="0xC48.........e43"
+                                required />
+                            <p>Value: </p>
+                              <input
+                              id="transferToken"
+                              type="number"
+                              ref={(input) => { this.valueToken = input }}
+                              className="form-control"
+                              placeholder="10"
+                              min={1}
+                              required />
+                          <button type="submit" className="btn btn-wallet btn-link btn-sm pt-0">
+                              Transfer
+                          </button>
+                        </form>
+                    </li>
+                    <li className="nav-item">
+                        
+                    </li>
+                </ul>
+              </div>
+        </div>
+      </div>
+    );
+  }
+}
+
+export default Main;
