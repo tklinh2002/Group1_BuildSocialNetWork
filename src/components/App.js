@@ -127,20 +127,6 @@ class App extends Component {
     }
   }
 
-  async loadToken() {
-    const web3 = window.web3
-    const networkId = await web3.eth.net.getId()
-    const networkData = TokenSCN.networks[networkId]
-    if(networkData) {
-      const tokenSCN = new web3.eth.Contract(TokenSCN.abi, networkData.address)
-      this.setState({tokenSCN})
-
-      const tokenTotal = await tokenSCN.methods.balanceOf(this.state.account).call()
-      this.setState({tokenTotal: tokenTotal})
-    } else {
-      window.alert('No token found')
-    }
-  }
 
   createPost(content) {
     this.setState({ loading: true })
@@ -184,15 +170,7 @@ class App extends Component {
     })
   }
 
-  transferToken(address, value){
-    this.setState({ loading: true })
-    this.state.tokenSCN.methods.transfer(address, value).send({ from: this.state.account})
-    .once('receipt', (receipt) => {
-      this.setState({ loading: false })
-    })
-    this.reloadPage()
-  }
-
+  
   reloadPage() {
     
     window.location.reload()
@@ -203,7 +181,6 @@ class App extends Component {
     this.state = {
       account: '',
       socialNetwork: null,
-      tokenSCN: null,
       postCount: 0,
       posts: [],
       isVotes:[],
@@ -212,7 +189,6 @@ class App extends Component {
       day: 0,
       isMember:false,
       isAdmin: false,
-      tokenTotal: 0,
       loading: true
     }
     this.deleteMember = this.deleteMember.bind(this)
@@ -220,7 +196,6 @@ class App extends Component {
     this.createPost = this.createPost.bind(this)
     this.tipPost = this.tipPost.bind(this)
     this.votePost = this.votePost.bind(this)
-    this.transferToken = this.transferToken.bind(this)
     this.reloadPage = this.reloadPage.bind(this);
   }
 
@@ -244,11 +219,8 @@ class App extends Component {
               posts={this.state.posts}
               createPost={this.createPost}
               tipPost={this.tipPost}
-              tokenTotal={this.state.tokenTotal} 
               votePost={this.votePost}
               isVote={this.state.isVotes}
-              account={this.state.account}
-              transferToken={this.transferToken}
             />
         }
       </div>

@@ -137,48 +137,6 @@ class Main extends Component {
               })}
             </div>
           </main>
-              <div className='position-absolute wallet' style={{right: '1rem'}}>
-                <h4 className='text-center'>My wallet</h4>
-                <ul className="navbar-nav">
-                    <li className="nav-item active">
-                        <p className=''>Token: {this.props.tokenTotal} SCN</p>
-                    </li>
-                    <li className="nav-item">
-                            
-                            <form onSubmit={(event) => {
-                            event.preventDefault()
-                            const toAddress = this.toAddress.value
-                            const valueToken = this.valueToken.value
-                            
-                            this.props.transferToken(toAddress, valueToken)
-                          }}>
-                          <p>To address: </p>
-                            <input
-                                id="toAddress"
-                                type="text"
-                                ref={(input) => { this.toAddress = input }}
-                                className="form-control"
-                                placeholder="0xC48.........e43"
-                                required />
-                            <p>Value: </p>
-                              <input
-                              id="transferToken"
-                              type="number"
-                              ref={(input) => { this.valueToken = input }}
-                              className="form-control"
-                              placeholder="10"
-                              min={1}
-                              required />
-                          <button type="submit" className="btn btn-wallet btn-link btn-sm pt-0">
-                              Transfer
-                          </button>
-                        </form>
-                    </li>
-                    <li className="nav-item">
-                        
-                    </li>
-                </ul>
-              </div>
         </div>
       </div>
     );
