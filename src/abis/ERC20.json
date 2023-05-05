@@ -71,7 +71,7 @@
   "sourceMap": "",
   "deployedSourceMap": "",
   "source": "pragma solidity ^0.5.0;\r\n\r\ninterface ERC20 {\r\n\r\n    function balanceOf(address account) external view returns (uint256);\r\n    function transfer(address recipient, uint256 amount) external returns (bool);\r\n\r\n    event Transfer(address indexed from, address indexed to, uint256 value);\r\n\r\n}\r\n",
-  "sourcePath": "D:\\Code\\DL2\\snw2\\PTDL2_Project\\src\\contracts\\ERC20.sol",
+  "sourcePath": "D:/Code/DL2/snw2/PTDL2_Project/src/contracts/ERC20.sol",
   "ast": {
     "absolutePath": "/D/Code/DL2/snw2/PTDL2_Project/src/contracts/ERC20.sol",
     "exportedSymbols": {
@@ -736,7 +736,7 @@
   },
   "networks": {},
   "schemaVersion": "3.0.1",
-  "updatedAt": "2023-04-30T12:57:52.805Z",
+  "updatedAt": "2023-05-02T05:46:56.651Z",
   "devdoc": {
     "methods": {}
   },

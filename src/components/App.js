@@ -2,15 +2,14 @@ import React, { Component } from 'react';
 import Web3 from 'web3';
 import './App.css';
 import SocialNetwork from '../abis/SocialNetwork.json'
-import TokenSCN from '../abis/TokenSCN.json'
 import Navbar from './Navbar'
 import Main from './Main'
 
 class App extends Component {
+  _adminWallet = '0x31435210dA75eE90bE5d7f03a5AAB94015Fc3cC2';
   async componentWillMount() {
     await this.loadWeb3()
     await this.loadBlockchainData()
-    await this.loadToken()
   }
 
   async loadWeb3() {
@@ -43,18 +42,21 @@ class App extends Component {
 
       // load isMember
       // change pkAdmin
-      if(this.state.account === '0x31435210dA75eE90bE5d7f03a5AAB94015Fc3cC2'){
+      if(this.state.account === this._adminWallet){
         this.state.isAdmin = true
         const numMember = await this.state.socialNetwork.methods.numMember().call()
         for (let i = 0; i < numMember; i++) {
           let address = await this.state.socialNetwork.methods.accounts(i).call()
           let timeSign = await this.state.socialNetwork.methods.members(address).call()
           // let day = ((Date.now()/1000) - timeSign)/60/60/24
-          console.log(typeof(timeSign))
+          
           if(timeSign !=='0'){
             this.state.members[this.state.members.length] = address
           }
         }
+        
+        await this.getDaysOfAllMember()
+        
       }
 
       const numMember = await this.state.socialNetwork.methods.numMember().call()
@@ -67,12 +69,14 @@ class App extends Component {
           }
         }
 
+        
+
       const isMember = await this.state.socialNetwork.methods.members(this.state.account).call()
       if(isMember === '0'){
         this.state.isMember = false   
       }else{
         let day = 30 - ((Date.now()/1000) - isMember)/60/60/24
-        this.state.day = day
+        this.state.day = parseInt(day.toFixed(0))
         this.state.isMember = true
       }
 
@@ -86,15 +90,27 @@ class App extends Component {
       // Sort posts. Show highest tipped posts first
       this.setState({
         posts: this.state.posts.sort((a,b) => {
-          if(b.vote >= 2 && a.vote >=2){
+
+          if(a.author === this._adminWallet || b.author === this._adminWallet ) {
+            if(a.author === this._adminWallet)
+              return -1;
+            else
+              return 1;
+          } else if(b.vote >= 2 && a.vote >=2){
             if(b.vote > a.vote){
               return 1
             }
             if(b.vote === a.vote){
               if (this.state.membersAll.includes(b.author) && !this.state.membersAll.includes(a.author))
+              {
+                
                 return 1;
+              }
               else if(!this.state.membersAll.includes(b.author) && this.state.membersAll.includes(a.author))
+              {
+                
                 return -1;
+              }
             }
           }else{
             if(b.vote > a.vote){
@@ -117,10 +133,6 @@ class App extends Component {
       }
       
       this.setState({isVotes: isVoteTemp})
-
-
-      
-
       this.setState({ loading: false})
     } else {
       window.alert('SocialNetwork contract not deployed to detected network.')
@@ -172,8 +184,19 @@ class App extends Component {
 
   
   reloadPage() {
-    
     window.location.reload()
+  }
+
+  async getDaysOfAllMember() {
+    const numMembers = this.state.members.length; 
+    var days = 0;
+    const members = this.state.members;
+    for(let i=0; i<numMembers; i++)
+    {
+      days = await this.state.socialNetwork.methods.members(members[i]).call()
+      days =  30 - ((Date.now()/1000) - days)/60/60/24
+      this.state.daysOfMember.push(days.toFixed(0))
+    }  
   }
 
   constructor(props) {
@@ -186,17 +209,18 @@ class App extends Component {
       isVotes:[],
       members:[],
       membersAll:[],
+      daysOfMember:[],
       day: 0,
       isMember:false,
       isAdmin: false,
-      loading: true
+      loading: true,
     }
     this.deleteMember = this.deleteMember.bind(this)
     this.signMember = this.signMember.bind(this)
     this.createPost = this.createPost.bind(this)
     this.tipPost = this.tipPost.bind(this)
     this.votePost = this.votePost.bind(this)
-    this.reloadPage = this.reloadPage.bind(this);
+    this.reloadPage = this.reloadPage.bind(this)
   }
 
   render() {
@@ -207,11 +231,11 @@ class App extends Component {
             signMember = {this.signMember}
             isMember = {this.state.isMember}
             day = {this.state.day}
+            isAdmin = {this.state.isAdmin}
         />
         { this.state.loading
           ? <div id="loader" className="text-center mt-5"><p>Loading...</p></div>
           : <Main
-
               isAdmin = {this.state.isAdmin}
               deleteMember = {this.deleteMember}
               membersAll = {this.state.membersAll}
@@ -221,6 +245,8 @@ class App extends Component {
               tipPost={this.tipPost}
               votePost={this.votePost}
               isVote={this.state.isVotes}
+              daysOfMember={this.state.daysOfMember}
+              _adminWallet = {this._adminWallet}
             />
         }
       </div>

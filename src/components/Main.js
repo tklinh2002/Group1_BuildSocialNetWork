@@ -1,21 +1,30 @@
-import React, { Component } from 'react';
+import React, { Component} from 'react';
 import {FaHeart} from"react-icons/fa";
+import {FaKey} from"react-icons/fa";
 import { IoIosCheckmarkCircle } from 'react-icons/io';
+import ModalTip from './ModalTip'
 import Identicon from 'identicon.js';
+
 class Main extends Component {
+
+  tipPost(id, tipAmount){
+    this.props.tipPost(id, tipAmount)
+  }
   constructor(props) {
     super(props);
     this.state = {
       socialNetwork: null,
-      showList: false
+      showList: false,
+
     };
-    
+    this.tipPost = this.tipPost.bind(this)
     this.toggleList = this.toggleList.bind(this);
   }
 
   toggleList() {
     this.setState({ showList: !this.state.showList });
   }
+  
   
   manageAccount(){
     if(this.props.isAdmin === true){
@@ -27,8 +36,11 @@ class Main extends Component {
                   this.props.members.map((address,key)=>{
                     return(
                       <div>
-                        <li className="list-group-item" key = {key}><small>{address}</small>
-                        <button className='btn btn-danger float-right'onClick={(event)=>{
+                        <li className="list-group-item d-flex align-items-center justify-content-between mt-3" key = {key}>
+                          <small>{address}
+                          <br />
+                          Expiry date: {this.props.daysOfMember[key]}</small>
+                        <button className='btn btn-danger float-right ml-4'onClick={(event)=>{
                           this.props.deleteMember(address)
                         }}>Cancel</button></li>
                       </div>
@@ -46,12 +58,15 @@ class Main extends Component {
     const isMember = members.filter((value) => {
       return value === address;
     });
-    if (isMember.length > 0) {
+    if (address === this.props._adminWallet) {
+      return <FaKey />;
+    } else if ((isMember.length > 0)) {
       return <IoIosCheckmarkCircle />;
     } else {
       return null;
     }
   }
+  
   render() {
     return (
       <div className="container-fluid mt-5">
@@ -93,7 +108,7 @@ class Main extends Component {
                         src={`data:image/png;base64,${new Identicon(post.author, 30).toString()}`}
                       />
                       <small className="text-muted">{post.author}</small>
-                      <span style={{color:"blue"}}>
+                      <span style={{color:"blue"}}  className="ml-3">
                         {this.setIconTick(post.author)}
                       </span>
                       
@@ -119,17 +134,22 @@ class Main extends Component {
                           </span>
                           <span className='vote-number'>{post.vote}</span>
                         </button>
-                        <button
+                        {/* <button
                           className="btn btn-link btn-sm float-right pt-0"
                           name={post.id}
+                          data-toggle="modal" data-target="#exampleModalLong"
+
                           onClick={(event) => {
-                            let tipAmount = window.web3.utils.toWei('0.1', 'Ether')
-                            console.log(event.target.name, tipAmount)
-                            this.props.tipPost(event.target.name, tipAmount)
+
+                            // this.props.tipPost(event.target.name, tipAmount)
                           }}
                         >
                           TIP 0.1 ETH
-                        </button>
+                        </button> */}
+                        <ModalTip 
+                          post={post}
+                          tipPost = {this.tipPost}
+                        />
                       </li>
                     </ul>
                   </div>

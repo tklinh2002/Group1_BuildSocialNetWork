@@ -4,11 +4,20 @@ import Identicon from 'identicon.js';
 class Navbar extends Component {
 
   signMember(){
-    if(this.props.isMember){
+    if(this.props.isAdmin){
+      return(
+        <React.Fragment>
+          <small className="text-info float left mr-4"> Expiry date: infinity</small>
+          <button class="btn btn-primary m-1 mr-3"
+        disabled={true} 
+      >Admin</button>
+      </React.Fragment>
+        )
+    }else if(this.props.isMember){
       return(
       <React.Fragment>
         <small className="text-info float left"> Expiry date: {this.props.day} days</small>
-        <button class="btn btn-primary m-1"
+        <button class="btn btn-primary m-1 ml-3"
         disabled={true} 
         onClick = {(event)=>{
           let amount = window.web3.utils.toWei('1', 'Ether') 
@@ -20,7 +29,7 @@ class Navbar extends Component {
     }else{
       return(<button class="btn btn-primary m-1" 
       onClick = {(event)=>{
-        let amount = window.web3.utils.toWei('1', 'Ether') 
+        let amount = window.web3.utils.toWei('4', 'Ether') 
         this.props.signMember(amount)  
       }}
       >Member</button>)
