@@ -96,7 +96,7 @@ class App extends Component {
               return -1;
             else
               return 1;
-          } else if(b.vote >= 2 && a.vote >=2){
+          } else if(b.vote >= 3 && a.vote >=3){
             if(b.vote > a.vote){
               return 1
             }
@@ -112,6 +112,23 @@ class App extends Component {
                 return -1;
               }
             }
+          }else if(b.vote < 3 && a.vote <3){
+              if (this.state.membersAll.includes(b.author) && !this.state.membersAll.includes(a.author))
+              {
+                return 1;
+              }
+              else if(!this.state.membersAll.includes(b.author) && this.state.membersAll.includes(a.author))
+              {
+                return -1;
+              }else{
+                if(b.vote > a.vote){
+                  return 1;
+                }else if(b.vote < a.vote){
+                  return -1;
+                }else{
+                  return 0;
+                }
+              }
           }else{
             if(b.vote > a.vote){
               return 1;
